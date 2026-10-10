@@ -1,0 +1,17 @@
+<div style="padding: 20px; font-family: sans-serif;">
+  <h2>Gestión de Citas Médicas (Angular 22 + .NET 10)</h2>
+
+  <div style="margin-top: 20px;">
+    <h3>Listado de Citas</h3>
+    <ul>
+      @for (item of appointments(); track item.id) {
+        <li>
+          <strong>{{ item.patientName }}</strong> - Dr(a). {{ item.doctorName }} 
+          ({{ item.appointmentDate }}) - <span style="color: green;">{{ item.status }}</span>
+        </li>
+      } @empty {
+        <li>No hay citas registradas o cargando datos...</li>
+      }
+    </ul>
+  </div>
+</div>
