@@ -1,27 +1,23 @@
-﻿using Citas.Api.Models;
+﻿using Citas.Api.Data;
+using Citas.Api.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Citas.Api.Repositories
 {
     public class AppointmentRepository : IAppointmentRepository
     {
-        // Lista en memoria temporal para simular la base de datos
-        private static readonly List<Appointment> _appointments = new()
-        {
-            new Appointment { Id = 1, PatientName = "Juan Pérez", DoctorName = "Dra. Gomez", AppointmentDate = DateTime.Now.AddDays(1), Status = "Scheduled" },
-            new Appointment { Id = 2, PatientName = "María López", DoctorName = "Dr. Torres", AppointmentDate = DateTime.Now.AddDays(2), Status = "Scheduled" }
-        };
+        private readonly AppDbContext _context;
 
-        public async Task<IEnumerable<Appointment>> GetAllAsync()
-        {
-            // Simulamos operación asíncrona (como si fuera Entity Framework a la BD)
-            return await Task.FromResult(_appointments);
-        }
+        public AppointmentRepository(AppDbContext context) => _context = context;
+
+        public async Task<IEnumerable<Appointment>> GetAllAsync() =>
+            await _context.Appointments.AsNoTracking().OrderBy(a => a.AppointmentDate).ToListAsync();
 
         public async Task<Appointment> AddAsync(Appointment appointment)
         {
-            appointment.Id = _appointments.Count > 0 ? _appointments.Max(a => a.Id) + 1 : 1;
-            _appointments.Add(appointment);
-            return await Task.FromResult(appointment);
+            _context.Appointments.Add(appointment);
+            await _context.SaveChangesAsync();   // el Id lo genera SQL Server
+            return appointment;
         }
     }
 }

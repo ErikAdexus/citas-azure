@@ -1,7 +1,3 @@
---correr back o front en contenedor docker
-"C:\Program Files\Docker\Docker\resources\bin\docker.exe" compose up --build
-
-
 --citasregistry2026
 --password 1
 7r1H1tEUe6Y9nMgVoe59stODf7dVDTrEVquRsIg8kJLt1AiIqzZ2JQQJ99CJACYeBjFEqg7NAAACAZCRdhLS
@@ -9,20 +5,23 @@
 72yilzyekDfzWDq2ZcdnZrx62lN0WglScxHfklEw5tWhxY1gc7aAJQQJ99CJACYeBjFEqg7NAAACAZCRWXfF
 
 
---Azure Container Registry
---proceso para subir contenedor Docker
---entrar carpeta
+
+--Para usar Docker no local
+Power Shell
 cd C:\2026\Portafolio\citas-azure
 
---logear
-"C:\Program Files\Docker\Docker\resources\bin\docker.exe" login citasregistry2026.azurecr.io -u citasregistry2026 -p 7r1H1tEUe6Y9nMgVoe59stODf7dVDTrEVquRsIg8kJLt1AiIqzZ2JQQJ99CJACYeBjFEqg7NAAACAZCRdhLS
+--correr aplicativo en contenedor
+docker-compose build
+docker-compose up
 
---Etiquetar las imágenes locales para Azure
-"C:\Program Files\Docker\Docker\resources\bin\docker.exe" tag citas-azure-citas-api citasregistry2026.azurecr.io/citas-api:latest
-"C:\Program Files\Docker\Docker\resources\bin\docker.exe" tag citas-azure-citas-web citasregistry2026.azurecr.io/citas-web:latest
+--Flujo para subir y desplegar en Azure
+1. Login en tu ACR (Azure Container Registry) 
+docker login citasregistry2026.azurecr.io -u citasregistry2026 -p 7r1H1tEUe6Y9nMgVoe59stODf7dVDTrEVquRsIg8kJLt1AiIqzZ2JQQJ99CJACYeBjFEqg7NAAACAZCRdhLS
 
---Subirlas a la nube (Push)
-"C:\Program Files\Docker\Docker\resources\bin\docker.exe" push citasregistry2026.azurecr.io/citas-api:latest
-"C:\Program Files\Docker\Docker\resources\bin\docker.exe" push citasregistry2026.azurecr.io/citas-web:latest
+2. Etiquetar las imágenes locales
+docker tag citas-azure-citas-api citasregistry2026.azurecr.io/citas-api:latest
+docker tag citas-azure-citas-web citasregistry2026.azurecr.io/citas-web:latest
 
-
+3. Push al ACR
+docker push citasregistry2026.azurecr.io/citas-api:latest
+docker push citasregistry2026.azurecr.io/citas-web:latest

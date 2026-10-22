@@ -1,17 +1,59 @@
-<div style="padding: 20px; font-family: sans-serif;">
+<main class="page">
   <h2>Gestión de Citas Médicas (Angular 22 + .NET 10)</h2>
 
-  <div style="margin-top: 20px;">
-    <h3>Listado de Citas</h3>
-    <ul>
-      @for (item of appointments(); track item.id) {
-        <li>
-          <strong>{{ item.patientName }}</strong> - Dr(a). {{ item.doctorName }} 
-          ({{ item.appointmentDate }}) - <span style="color: green;">{{ item.status }}</span>
-        </li>
-      } @empty {
-        <li>No hay citas registradas o cargando datos...</li>
+  <section class="card">
+    <h3>Nueva cita</h3>
+    <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+      <label>
+        Paciente
+        <input formControlName="patientName" />
+      </label>
+      @if (form.controls.patientName.touched && form.controls.patientName.invalid) {
+        <small class="error">Obligatorio (máximo 100 caracteres).</small>
       }
-    </ul>
-  </div>
-</div>
+
+      <label>
+        Doctor(a)
+        <input formControlName="doctorName" />
+      </label>
+      @if (form.controls.doctorName.touched && form.controls.doctorName.invalid) {
+        <small class="error">Obligatorio (máximo 100 caracteres).</small>
+      }
+
+      <label>
+        Fecha y hora
+        <input type="datetime-local" formControlName="appointmentDate" />
+      </label>
+      @if (form.controls.appointmentDate.touched && form.controls.appointmentDate.invalid) {
+        <small class="error">Elige una fecha y hora.</small>
+      }
+
+      <button type="submit" [disabled]="saving()">
+        {{ saving() ? 'Guardando...' : 'Guardar cita' }}
+      </button>
+    </form>
+  </section>
+
+  @if (errorMessage()) {
+    <p class="error">{{ errorMessage() }}</p>
+  }
+
+  <section class="card">
+    <h3>Listado de citas ({{ total() }})</h3>
+    @if (loading()) {
+      <p>Cargando citas...</p>
+    } @else {
+      <ul>
+        @for (item of appointments(); track item.id) {
+          <li>
+            <strong>{{ item.patientName }}</strong> - Dr(a). {{ item.doctorName }}
+            ({{ item.appointmentDate | date: 'dd/MM/yyyy HH:mm' }}) -
+            <span class="status">{{ item.status }}</span>
+          </li>
+        } @empty {
+          <li>No hay citas registradas.</li>
+        }
+      </ul>
+    }
+  </section>
+</main>

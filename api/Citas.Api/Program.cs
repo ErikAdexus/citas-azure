@@ -1,11 +1,11 @@
 using Citas.Api.Services;
 using Citas.Api.Repositories;
+using Citas.Api.Data;                 // para AppDbContext
+using Microsoft.EntityFrameworkCore;  // para UseSqlServer
+using Azure.Monitor.OpenTelemetry.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -15,16 +15,35 @@ builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 
 
-// 1. Agregar política de CORS para permitir que Angular (puerto 4200) consuma la API
+// 1. CORS: los orígenes permitidos se leen de la configuración (Cors:AllowedOrigins)
+//    - En Azure: variable de entorno Cors__AllowedOrigins__0 = URL del front
+//    - En local: appsettings.Development.json (ver abajo)
+var allowedOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular",
-        policy => policy.WithOrigins("http://localhost:4200")
+        policy => policy
+                        // .WithOrigins("http://localhost:4200")   // Versión local (fija): ahora va en appsettings.Development.json
+                        .WithOrigins(allowedOrigins)
                         .AllowAnyHeader()
                         .AllowAnyMethod());
 });
 
 builder.Services.AddControllers();
+
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("RealConnection"),
+        sql => sql.EnableRetryOnFailure()));   // útil con la base gratuita que se pausa
+
+
+if (!string.IsNullOrWhiteSpace(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
+{
+    builder.Services.AddOpenTelemetry().UseAzureMonitor();
+}
 
 var app = builder.Build();
 
@@ -43,4 +62,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+
+app.MapGet("/", () => "Citas API funcionando");
 app.Run();
+

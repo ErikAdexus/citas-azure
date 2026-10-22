@@ -9,6 +9,8 @@ services:
       - "7044:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__RealConnection=Server=tcp:citas-sql-2026.database.windows.net,1433;Database=citasdb;User ID=citasadmin;Password=P@ssw0rd;Encrypt=True;TrustServerCertificate=False;Connection Timeout=60;
+
     networks:
       - red-citas
 
@@ -22,6 +24,7 @@ services:
       - citas-api
     networks:
       - red-citas
+
 
 networks:
   red-citas:
