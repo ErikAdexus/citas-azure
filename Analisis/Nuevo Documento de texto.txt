@@ -11,7 +11,7 @@ Power Shell
 cd C:\2026\Portafolio\citas-azure
 
 --correr aplicativo en contenedor
-docker-compose build
+docker-compose build (--no-cache citas-api)
 docker-compose up
 
 --Flujo para subir y desplegar en Azure

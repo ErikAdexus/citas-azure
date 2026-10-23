@@ -3,8 +3,17 @@ using Citas.Api.Repositories;
 using Citas.Api.Data;                 // para AppDbContext
 using Microsoft.EntityFrameworkCore;  // para UseSqlServer
 using Azure.Monitor.OpenTelemetry.AspNetCore;
+using Azure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var vaultUri = builder.Configuration["KeyVault:Uri"];
+if (!string.IsNullOrWhiteSpace(vaultUri))
+{
+    builder.Configuration.AddAzureKeyVault(
+        new Uri(vaultUri),
+        new DefaultAzureCredential());
+}
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -43,9 +52,15 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 if (!string.IsNullOrWhiteSpace(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
 {
     builder.Services.AddOpenTelemetry().UseAzureMonitor();
+
+    // Agrega esta línea para que exista el TelemetryClient en el contenedor de dependencias:
+    builder.Services.AddApplicationInsightsTelemetry();
 }
 
 var app = builder.Build();
+
+app.Logger.LogInformation("Application Insights configurado: {Configured}",
+    !string.IsNullOrWhiteSpace(app.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]));
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
