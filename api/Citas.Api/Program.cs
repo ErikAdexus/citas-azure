@@ -52,10 +52,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 if (!string.IsNullOrWhiteSpace(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
 {
     builder.Services.AddOpenTelemetry().UseAzureMonitor();
-
-    // Agrega esta línea para que exista el TelemetryClient en el contenedor de dependencias:
-    builder.Services.AddApplicationInsightsTelemetry();
 }
+
+builder.Services.AddApplicationInsightsTelemetry();
 
 var app = builder.Build();
 
