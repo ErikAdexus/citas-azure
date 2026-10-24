@@ -49,11 +49,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         sql => sql.EnableRetryOnFailure()));   // útil con la base gratuita que se pausa
 
 
-if (!string.IsNullOrWhiteSpace(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
-{
-    builder.Services.AddOpenTelemetry().UseAzureMonitor();
-}
+// Elimina o comenta la línea de UseAzureMonitor() para evitar el conflicto de llamadas múltiples
+// if (!string.IsNullOrWhiteSpace(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
+// {
+//     builder.Services.AddOpenTelemetry().UseAzureMonitor();
+// }
 
+// Mantén solo esta línea de forma incondicional:
 builder.Services.AddApplicationInsightsTelemetry();
 
 var app = builder.Build();
